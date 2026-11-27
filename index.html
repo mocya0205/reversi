@@ -29,7 +29,7 @@
   color-scheme:light;
   /* set from script */
   --c1:#ec7fa0; --c2:#5d8a3c; --i1:#111111; --i2:#ffffff; --hc:#ec7fa0;
-  --clip1:none; --clip2:none; --rad1:50%; --rad2:50%; --sc1:1; --sc2:1;
+  --clip1:none; --clip2:none; --rad1:50%; --rad2:50%; --sc1:1; --sc2:1; --img1:none; --img2:none;
   --bd:#efe6d6; --bd-line:#d7cdbb; --bd-frame:#8a7a5f; --bd-ink:#000000;
 }
 @media (prefers-color-scheme: dark){
@@ -88,12 +88,18 @@ h1{margin:0;font-family:var(--font-display);font-weight:400;font-size:21px;lette
 
 /* stones */
 .disc{position:absolute;inset:11%;filter:drop-shadow(0 2px 1.5px rgba(0,0,0,.32));pointer-events:none}
-.face{width:100%;height:100%;display:grid;place-items:center;line-height:1;color:var(--fi);
+.face{position:relative;width:100%;height:100%;display:grid;place-items:center;line-height:1;color:var(--fi);
   background:var(--fc);
   background:radial-gradient(circle at 34% 28%,color-mix(in srgb,var(--fc) 64%,#fff) 0,var(--fc) 56%,color-mix(in srgb,var(--fc) 84%,#000) 100%)}
 .mark{font-size:20px;font-size:46cqw;font-family:var(--font-body),"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;user-select:none;-webkit-user-select:none}
 [data-o="1"] .face{--fc:var(--c1);--fi:var(--i1);clip-path:var(--clip1);border-radius:var(--rad1);transform:scale(var(--sc1))}
 [data-o="2"] .face{--fc:var(--c2);--fi:var(--i2);clip-path:var(--clip2);border-radius:var(--rad2);transform:scale(var(--sc2))}
+/* own picture on a stone: drawn inside the stone, so the stone colour stays visible as a rim */
+.pic{display:none;position:absolute;inset:12%;background:center/cover no-repeat}
+[data-o="1"] .pic{background-image:var(--img1);clip-path:var(--clip1);border-radius:var(--rad1)}
+[data-o="2"] .pic{background-image:var(--img2);clip-path:var(--clip2);border-radius:var(--rad2)}
+.img1 [data-o="1"] .pic,.img2 [data-o="2"] .pic{display:block}
+.img1 [data-o="1"] .mark,.img2 [data-o="2"] .mark{visibility:hidden}
 
 /* result */
 .result{position:absolute;inset:0;display:grid;place-content:center;gap:12px;text-align:center;padding:20px;border-radius:16px;background:rgba(12,14,20,.68);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);color:#fff}
@@ -138,6 +144,13 @@ h1{margin:0;font-family:var(--font-display);font-weight:400;font-size:21px;lette
 .shp .ico{width:24px;height:24px;background:var(--muted)}
 .mk{display:grid;place-items:center;min-width:42px;height:42px;padding:0 8px;border:2px solid var(--line);border-radius:10px;background:var(--bg);font-size:20px;line-height:1;cursor:pointer;font-family:var(--font-body),"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
 .mk.none{font-size:13px}
+.imgrow{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.imgprev{flex:none;width:46px;height:46px;border:2px dashed var(--line);border-radius:12px;background:var(--bg) center/cover no-repeat}
+.imgprev.has{border-style:solid;border-color:var(--ink)}
+.pick{position:relative;display:inline-flex;align-items:center;overflow:hidden}
+.pick input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer}
+.pick:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+.imgerr,.imgrow~.note{margin-top:8px}
 .markin{width:100%;min-height:42px;margin-top:8px;padding:0 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px}
 
 .seg{display:flex;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
@@ -177,8 +190,8 @@ h1{margin:0;font-family:var(--font-display);font-weight:400;font-size:21px;lette
 
   <section class="play" aria-label="対局">
     <div class="scores">
-      <div class="side" id="side1"><span class="chip" id="chip1" data-o="1"><span class="disc"><span class="face"><span class="mark"></span></span></span></span><div><div class="who" id="who1"></div><div class="num" id="n1">2</div></div></div>
-      <div class="side" id="side2"><span class="chip" id="chip2" data-o="2"><span class="disc"><span class="face"><span class="mark"></span></span></span></span><div><div class="who" id="who2"></div><div class="num" id="n2">2</div></div></div>
+      <div class="side" id="side1"><span class="chip" id="chip1" data-o="1"><span class="disc"><span class="face"><span class="mark"></span><span class="pic"></span></span></span></span><div><div class="who" id="who1"></div><div class="num" id="n1">2</div></div></div>
+      <div class="side" id="side2"><span class="chip" id="chip2" data-o="2"><span class="disc"><span class="face"><span class="mark"></span><span class="pic"></span></span></span></span><div><div class="who" id="who2"></div><div class="num" id="n2">2</div></div></div>
       <p class="status" id="status" role="status" aria-live="polite"></p>
     </div>
 
@@ -207,6 +220,7 @@ h1{margin:0;font-family:var(--font-display);font-weight:400;font-size:21px;lette
     <div class="panel" id="panel-theme" role="tabpanel">
       <div class="presets" id="presets"></div>
       <p class="note">選んだあとで、先手・後手・盤のタブから細かく変えられます。</p>
+      <p class="note" id="imgNote" hidden>石に写真を使っています。テーマを選んでも写真はそのままです。外すときは、先手・後手のタブから外せます。</p>
     </div>
 
     <div class="panel" id="panel-p1" role="tabpanel" hidden></div>
@@ -362,12 +376,90 @@ let shown=S.board.slice();
 let gen=0;
 const who=p=>S.mode==='cpu'?(p===1?'あなた':'CPU'):(p===1?'先手':'後手');
 
+/* ---------- own pictures on stones ----------
+   Everything happens inside this browser: the picture is cropped to a square,
+   shrunk, and re-encoded on a canvas (which also drops EXIF data such as GPS),
+   then kept in this device's localStorage only. Nothing is uploaded. */
+const IMG_KEY='arrange-reversi-img-v1',IMG_PX=192,IMG_MAX_FILE=30*1024*1024,IMG_MAX_LEN=400000;
+const IMG_RE=/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+const cleanImg=v=>typeof v==='string'&&v.length<=IMG_MAX_LEN&&IMG_RE.test(v)?v:'';
+let imgs={p1:'',p2:''};
+const imgView={p1:{data:'',url:''},p2:{data:'',url:''}};
+function loadImgs(){
+  try{const d=JSON.parse(localStorage.getItem(IMG_KEY)||'null');if(d&&typeof d==='object')return {p1:cleanImg(d.p1),p2:cleanImg(d.p2)};}catch(e){}
+  return {p1:'',p2:''};
+}
+function saveImgs(){
+  try{if(imgs.p1||imgs.p2)localStorage.setItem(IMG_KEY,JSON.stringify(imgs));else localStorage.removeItem(IMG_KEY);return true;}catch(e){return false;}
+}
+// Show pictures through short blob: URLs so the long data string is not copied into styles.
+function viewUrl(key){
+  const v=imgView[key],data=imgs[key];
+  if(v.data===data)return v.url;
+  if(v.url.indexOf('blob:')===0)URL.revokeObjectURL(v.url);
+  let url='';
+  if(data){
+    try{
+      const bin=atob(data.slice(data.indexOf(',')+1)),u=new Uint8Array(bin.length);
+      for(let k=0;k<bin.length;k++)u[k]=bin.charCodeAt(k);
+      url=URL.createObjectURL(new Blob([u],{type:data.slice(5,data.indexOf(';'))}));
+    }catch(e){url=data;}
+  }
+  v.data=data;v.url=url;return url;
+}
+function applyImgs(){
+  const root=document.documentElement;
+  [1,2].forEach(p=>{
+    const url=viewUrl('p'+p);
+    root.classList.toggle('img'+p,!!url);
+    if(url)root.style.setProperty('--img'+p,'url("'+url+'")');else root.style.removeProperty('--img'+p);
+  });
+}
+function hasAlpha(g){const d=g.getImageData(0,0,IMG_PX,IMG_PX).data;for(let i=3;i<d.length;i+=4)if(d[i]<255)return true;return false;}
+function drawSquare(src,sx,sy,s){
+  // shrink in steps of about half, which keeps the result smooth on every browser
+  let cur=src,cx=sx,cy=sy,cs=s;
+  while(cs>IMG_PX*2){
+    const n=Math.min(Math.ceil(cs/2),2048),c=document.createElement('canvas');c.width=c.height=n;
+    const g=c.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+    g.drawImage(cur,cx,cy,cs,cs,0,0,n,n);
+    cur=c;cx=0;cy=0;cs=n;
+  }
+  const out=document.createElement('canvas');out.width=out.height=IMG_PX;
+  const g=out.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
+  g.drawImage(cur,cx,cy,cs,cs,0,0,IMG_PX,IMG_PX);
+  return out;
+}
+function readImage(file){
+  return new Promise((resolve,reject)=>{
+    if(!file)return reject(new Error('none'));
+    if(file.type&&!/^image\//.test(file.type))return reject(new Error('type'));
+    if(file.size>IMG_MAX_FILE)return reject(new Error('size'));
+    const url=URL.createObjectURL(file),im=new Image();
+    im.onload=()=>{
+      try{
+        const w=im.naturalWidth,h=im.naturalHeight;
+        if(!w||!h)throw new Error('empty');
+        const s=Math.min(w,h),cv=drawSquare(im,(w-s)/2,(h-s)/2,s),g=cv.getContext('2d');
+        let out=cv.toDataURL('image/webp',.86);
+        if(out.indexOf('data:image/webp')!==0)out=hasAlpha(g)?cv.toDataURL('image/png'):cv.toDataURL('image/jpeg',.86);
+        out=cleanImg(out);
+        if(!out)throw new Error('encode');
+        resolve(out);
+      }catch(e){reject(e);}
+      finally{URL.revokeObjectURL(url);}
+    };
+    im.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('decode'));};
+    im.src=url;
+  });
+}
+
 /* ---------- board DOM ---------- */
 const gridEl=$('#grid'),statusEl=$('#status'),resultEl=$('#result');
 const cells=[];
 for(let i=0;i<64;i++){
   const b=el('button','cell');b.type='button';b.dataset.i=i;b.dataset.o='0';b.dataset.k=String(((i>>3)+(i&7))&1);
-  b.innerHTML='<span class="hint"></span><span class="disc"><span class="face"><span class="mark"></span></span></span>';
+  b.innerHTML='<span class="hint"></span><span class="disc"><span class="face"><span class="mark"></span><span class="pic"></span></span></span>';
   gridEl.appendChild(b);cells.push(b);
 }
 const cellName=i=>'ABCDEFGH'[i&7]+((i>>3)+1);
@@ -514,7 +606,8 @@ function applyCfg(){
 }
 function updateWarn(){
   const a=cfg.p1,b=cfg.p2,m=[];
-  if(dist(a.color,b.color)<70&&a.mark===b.mark&&a.shape===b.shape)m.push('先手と後手の石がほとんど同じ見た目です。色・形・絵文字のどれかを変えましょう。');
+  const sameFace=(imgs.p1||imgs.p2)?imgs.p1===imgs.p2:a.mark===b.mark;
+  if(dist(a.color,b.color)<70&&sameFace&&a.shape===b.shape)m.push('先手と後手の石がほとんど同じ見た目です。色・形・絵文字のどれかを変えましょう。');
   if(dist(a.color,cfg.board)<50||dist(b.color,cfg.board)<50)m.push('盤と石の色が近く、見えにくいかもしれません。');
   const w=$('#warn');w.hidden=!m.length;w.textContent=m.join(' ');
 }
@@ -540,7 +633,10 @@ function buildPresets(){
     b.addEventListener('click',()=>{cfg=fromPreset(p);changed();});
     box.appendChild(b);
   });
-  syncers.push(()=>box.querySelectorAll('.pre').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===cfg.preset))));
+  syncers.push(()=>{
+    box.querySelectorAll('.pre').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===cfg.preset)));
+    $('#imgNote').hidden=!(imgs.p1||imgs.p2);
+  });
 }
 function buildSwatches(box,palette,get,set){
   const btns=[];
@@ -561,10 +657,38 @@ function buildSwatches(box,palette,get,set){
 }
 function buildPlayer(key){
   const root=$('#panel-'+key);
-  root.innerHTML='<div class="group"><h3>色</h3><div class="swatches"></div></div>'+
+  root.innerHTML='<div class="group"><h3>写真・画像</h3>'+
+    '<div class="imgrow"><span class="imgprev" aria-hidden="true"></span>'+
+    '<label class="btn pick"><span class="picklab">写真を選ぶ</span><input type="file" accept="image/*" aria-label="石にする写真を選ぶ"></label>'+
+    '<button class="btn imgdel" type="button">外す</button></div>'+
+    '<p class="warn imgerr" role="status" hidden></p>'+
+    '<p class="note">写真はこの端末の中だけに保存され、どこにも送信されません。写真を使うと、下で選ぶ色は石のふちの色になり、絵文字は表示されません。</p></div>'+
+    '<div class="group"><h3>色</h3><div class="swatches"></div></div>'+
     '<div class="group"><h3>形</h3><div class="shapes"></div></div>'+
     '<div class="group"><h3>絵文字・文字</h3><div class="marks"></div>'+
     '<input class="markin" type="text" maxlength="12" autocomplete="off" placeholder="好きな絵文字を1つ入力" aria-label="好きな絵文字や文字"></div>';
+  const fileIn=root.querySelector('.pick input'),pickLab=root.querySelector('.picklab'),delBtn=root.querySelector('.imgdel'),prev=root.querySelector('.imgprev'),err=root.querySelector('.imgerr');
+  const showErr=t=>{err.textContent=t||'';err.hidden=!t;};
+  const imgChanged=()=>{applyImgs();updateWarn();syncStudio();return saveImgs();};
+  fileIn.addEventListener('change',()=>{
+    const f=fileIn.files&&fileIn.files[0];
+    fileIn.value='';
+    if(!f)return;
+    showErr('');pickLab.textContent='読み込み中…';fileIn.disabled=true;
+    readImage(f).then(data=>{
+      imgs[key]=data;
+      if(!imgChanged())showErr('この端末に保存できませんでした。ページを閉じると元に戻ります。');
+    },e=>{
+      showErr(e&&e.message==='size'?'写真が大きすぎます（30MBまで）。別の写真を選んでください。':'この写真は読み込めませんでした。別の写真を選んでください。');
+    }).then(()=>{pickLab.textContent='写真を選ぶ';fileIn.disabled=false;});
+  });
+  delBtn.addEventListener('click',()=>{imgs[key]='';showErr('');imgChanged();});
+  syncers.push(()=>{
+    const url=viewUrl(key);
+    prev.style.backgroundImage=url?'url("'+url+'")':'';
+    prev.classList.toggle('has',!!url);
+    delBtn.disabled=!url;
+  });
   buildSwatches(root.querySelector('.swatches'),STONE_COLORS,()=>cfg[key].color,hex=>setPlayer(key,{color:hex}));
   const shapesBox=root.querySelector('.shapes'),shapeBtns=[];
   Object.keys(SHAPES).forEach(k=>{
@@ -651,6 +775,7 @@ function start(data){
     S.over=!!data.over;S.last=typeof data.last==='number'?data.last:-1;S.msg=data.msg||'';S.adv=!!data.adv;
   }
   shown=S.board.slice();
+  imgs=loadImgs();applyImgs();
   buildTabs();buildPresets();buildPlayer('p1');buildPlayer('p2');buildBoardPanel();buildPlayPanel();
   applyCfg();syncStudio();renderAll();
   if(S.adv)advance();
